@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsyncRestaurant.Orders;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,14 +7,15 @@ namespace AsyncRestaurant
 {
     class Restaurant
     {
-        public Restaurant(int tables, int cooks, int waiters)
+        public Restaurant(int tables, int waiters, int cooks)
         {
-            NumberOfTables = tables;
-            NumberOfWaiters = waiters;
-            NumberOfCooks = cooks;
+            TablesCount = tables;
+            WaitersCount = waiters;
+            CooksCount = cooks;
         }
-        public int NumberOfTables { get; set; }
-        public int NumberOfWaiters { get; set; }
-        public int NumberOfCooks { get; set; }
+        public int TablesCount { get; set; }
+        public int WaitersCount { get; set; }
+        public int CooksCount { get; set; }
+        public IEnumerable<IOrder> OrderList { get; set; }
     }
 }

@@ -1,60 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncRestaurant.Orders.Dishes
 {
-    class Jajecznica : IDish
+    class Jajecznica : Order
     {
-        public Jajecznica(int number, string name)
+        public Jajecznica(int timeToCook, int table)
+            : base(timeToCook, table)
         {
-            Number = number;
-            Name = name;
-        }
-        public int Number { get; set; }
-        public string Name { get; set; }
-        public TimeSpan? WaitingTime { get; set; }
-
-        public async Task Preparing()
-        {
-            await PrzygotowanieBułki();
-            await Smazenie();
-
-            Console.WriteLine("Jajecznica gotowa do podania");
         }
 
-        private async Task RozbicieJaj()
+        public override async Task Cook(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Rozbijanie jaj");
-            await Task.Delay(1000);
-            Console.WriteLine("jajka rozbite");
+            //await BreakingEggs(cancellationToken);
+            //await SlicingOnion(cancellationToken);
+            await SlicingBun(cancellationToken);
+            await Frying(cancellationToken);
+
+            Console.WriteLine($"Stolik {Table}. Jajecznica gotowa do podania");
+            IsReady = true;
         }
 
-        public async Task KrojenieCebuli()
+        public override async Task Deliver()
         {
-            Console.WriteLine("Krojenie cebuli");
-            await Task.Delay(1000);
-            Console.WriteLine("Cebula pokrojona");
-        }
-
-        public async Task PrzygotowanieBułki()
-        {
-            Console.WriteLine("Pokrojenie i posmarowanie bułki");
-            await Task.Delay(2000);
-            Console.WriteLine("Bułka gotowa");
-        }
-
-        public async Task Smazenie()
-        {
-            await RozbicieJaj();
-            await KrojenieCebuli();
-            Console.WriteLine("Podgrzewanie masła");
-            await Task.Delay(1000);
-            Console.WriteLine("Podsmażenie cebuli");
-            await Task.Delay(1000);
-            Console.WriteLine("Dodanie jaj na patelnie");
+            Console.WriteLine($"Kelner niesie Hamburgera do stolika {Table}...");
             await Task.Delay(3000);
+            Console.WriteLine($"Zamówienie ze stolika {Table} zostało zrealizowane");
+        }
+
+        private Task BreakingEggs(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Stolik {Table}. Rozbijanie jaj...");
+            return Task.Delay(1000, cancellationToken);
+        }
+
+        private Task SlicingOnion(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Stolik {Table}. Krojenie cebuli...");
+            return Task.Delay(1000, cancellationToken);
+        }
+
+        private Task SlicingBun(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Stolik {Table}. Krojenie bułki...");
+            return Task.Delay(1000, cancellationToken);
+        }
+
+        private Task Frying(CancellationToken cancellationToken)
+        {
+            Task.WhenAll(BreakingEggs(cancellationToken), SlicingOnion(cancellationToken));
+
+            Console.WriteLine($"Stolik {Table}. Smażenie jajecznicy...");
+            return Task.Delay(5000, cancellationToken);
         }
     }
 }

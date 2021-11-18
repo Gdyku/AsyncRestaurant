@@ -1,58 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncRestaurant.Orders.Dishes
 {
-    class Hamburger : IDish
+    class Hamburger : Order
     {
-        public Hamburger(int number, string name)
-        {
-            Number = number;
-            Name = name;
-        }
-        public int Number { get; set; }
-        public string Name { get; set ; }
-        public TimeSpan? WaitingTime { get; set; }
-
-        public async Task Preparing()
-        {
-            await ZlozenieHamburgera();
+        public Hamburger(int timeToCook, int table) : base(timeToCook, table)
+        { 
         }
 
-        private async Task RozcinanieBułki()
+        public override async Task Cook(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Rozcinanie bułki...");
-            await Task.Delay(1000);
-            Console.WriteLine("Bułka rozcięta");
+            //await SliceBun(cancellationToken);
+            //await BeatMeat(cancellationToken);
+            await AssemblyBurger(cancellationToken);
+
+            Console.WriteLine($"Stolik {Table}. Hamburger gotowa do podania");
+            IsReady = true;
         }
 
-        private async Task KrojenieWarzyw()
+        public override async Task Deliver()
         {
-            Console.WriteLine("Rozpoczęcie krojenia warzyw...");
+            Console.WriteLine($"Kelner niesie Hamburgera do stolika {Table}...");
             await Task.Delay(3000);
-            Console.WriteLine("Warzywa skrojone");
+            Console.WriteLine($"Zamówienie ze stolika {Table} zostało zrealizowane");
         }
 
-        private async Task PrzygotowanieBurgera()
+        private Task SliceBun(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Przygotowanie mięsa do smażenia...");
-            await Task.Delay(2000);
-            Console.WriteLine("Smażenie burgera...");
-            await Task.Delay(2000);
-            Console.WriteLine("Burger gotowy");
+            Console.WriteLine($"Stolik {Table}. Krojenie bułki...");
+            return Task.Delay(1000, cancellationToken);
         }
 
-        private async Task ZlozenieHamburgera()
+        private Task BeatMeat(CancellationToken cancellationToken)
         {
-            await RozcinanieBułki();
-            await KrojenieWarzyw();
-            await PrzygotowanieBurgera();
+            Console.WriteLine($"Stolik {Table}. Przygotowanie kotleta...");
+            return Task.Delay(5000, cancellationToken);
+        }
 
-            Console.WriteLine("Rozpoczęcie składania hamburgera");
-            await Task.Delay(2000);
-            Console.WriteLine("Hamburger gotowy do podania");
+        private Task AssemblyBurger(CancellationToken cancellationToken)
+        {
+            Task.WhenAll(SliceBun(cancellationToken), BeatMeat(cancellationToken));
+
+            Console.WriteLine($"Stolik {Table}. Składanie burgera...");
+            return Task.Delay(2000, cancellationToken);
         }
     }
 }

@@ -1,37 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncRestaurant.Orders.Dishes
 {
-    class SchabowyIZiemniaki : IDish
+    class SchabowyIZiemniaki : Order
     {
-        public SchabowyIZiemniaki(int number, string name)
+        public SchabowyIZiemniaki(int timeToCook, int table) : base(timeToCook, table)
         {
-            Number = number;
-            Name = name;
-        }
-        public int Number { get; set; }
-        public string Name { get; set; }
-        public TimeSpan? WaitingTime { get; set; }
-
-        public Task Preparing()
-        {
-            throw new NotImplementedException();
         }
 
-        private Task  GotowanieZiemniakow()
+        public override async Task Cook(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await BoilingPotatoes(cancellationToken);
+            await MakingChop(cancellationToken);
+            await MakingSalad(cancellationToken);
+
+            Console.WriteLine($"Stolik {Table}. Schabowy z ziemniakami gotowa do podania");
+            IsReady = true;
         }
-        private Task PrzygotowanieKotleta()
+
+        public override async Task Deliver()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Kelner niesie schabowego z ziemniakami do stolika nr. {Table}...");
+            await Task.Delay(3000);
+            Console.WriteLine($"Zamówienie ze stolika nr.{Table} zostało zrealizowane");
         }
-        private Task PrzygotowanieSurówki()
+
+        private Task  BoilingPotatoes(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Stolik {Table}. Obranie i gotowanie ziemniaków...");
+            return Task.Delay(5000, cancellationToken);
+        }
+        private Task MakingChop(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Stolik {Table}. Rozbicie i przygotowanie kotleta...");
+            return Task.Delay(5000, cancellationToken);
+        }
+        private Task MakingSalad(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Stolik {Table}. Przygotowanie sałatki...");
+            return Task.Delay(3000, cancellationToken);
         }
     }
 }

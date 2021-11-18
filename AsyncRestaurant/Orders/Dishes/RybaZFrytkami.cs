@@ -1,42 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncRestaurant.Orders.Dishes
 {
-    class RybaZFrytkami : IDish
+    class RybaZFrytkami : Order
     {
-        public RybaZFrytkami(int number, string name)
+        public RybaZFrytkami(int timeToCook, int table) : base(timeToCook, table)
         {
-            Number = number;
-            Name = name;
         }
-        public int Number { get; set; }
-        public string Name { get; set; }
-        public TimeSpan? WaitingTime { get; set; }
-
-        public Task Preparing()
+        public override async Task Cook(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await FryingChips(cancellationToken);
+            await BakingFish(cancellationToken);
+            await MakingSalad(cancellationToken);
+
+            Console.WriteLine($"Stolik {Table}. Ryba z frytkami gotowa do podania");
+            IsReady = true;
         }
 
-        private async Task PrzygotowanieFrytek()
+        public override async Task Deliver()
         {
-            Console.WriteLine("Pieczenie frytek...");
+            Console.WriteLine($"Kelner niesie rybe z frytkami do stolika nr. {Table}...");
             await Task.Delay(3000);
-            Console.WriteLine("Frytki upieczone");
+            Console.WriteLine($"Zamówienie ze stolika nr.{Table} zostało zrealizowane");
         }
 
-        private Task PrzygotowanieRyby()
+
+        private Task FryingChips(CancellationToken cancellationToken)
         {
-            Console.WriteLine("");
-            
+            Console.WriteLine($"Stolik {Table}. Pieczenie frytek...");
+            return Task.Delay(3000, cancellationToken);
         }
 
-        private Task PrzygotowanieSurówki()
+        private Task BakingFish(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Stolik {Table}. Pieczenie ryby...");
+            return Task.Delay(10000, cancellationToken);
+        }
+
+        private Task MakingSalad(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Stolik {Table}. Robienie surówki...");
+            return Task.Delay(4000, cancellationToken);
         }
     }
 }
